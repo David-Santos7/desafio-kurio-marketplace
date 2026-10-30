@@ -1,0 +1,11 @@
+
+@import "tailwindcss";
+
+@theme {
+  --color-kurio-bg: #140d0a;
+  --color-kurio-card: #241612;
+  --color-kurio-primary: #d28a4c;
+  --color-kurio-text: #f5f1eb;
+  --color-kurio-muted: #cfb28c;
+  --color-kurio-border: #3f2319;
+}
