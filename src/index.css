@@ -1,11 +1,212 @@
 
+/* ==================================================
+   Design System baseado no Figma KURIO
+   ================================================== */
+
+
+/* ==================================================
+   1. IMPORTAÇÕES
+   ================================================== */
+
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/roboto-mono/wght.css";
+
+/* ==================================================
+   2. VARIANTE DARK DO TAILWIND
+   ================================================== */
+
+@custom-variant dark (&:is(.dark *));
+
+
+/* ==================================================
+   3. CORES OFICIAIS DA KURIO
+   Tokens personalizados do Tailwind CSS
+   ================================================== */
 
 @theme {
+  /* Backgrounds */
   --color-kurio-bg: #140d0a;
   --color-kurio-card: #241612;
+  --color-kurio-surface: #38220f;
+  --color-kurio-raised: #2f1d15;
+
+  /* Cores principais */
   --color-kurio-primary: #d28a4c;
+  --color-kurio-accent: #e89b55;
+  --color-kurio-secondary: #b39463;
+
+  /* Textos */
   --color-kurio-text: #f5f1eb;
+  --color-kurio-text-primary: #f7f3ec;
   --color-kurio-muted: #cfb28c;
+
+  /* Bordas */
   --color-kurio-border: #3f2319;
+  --color-kurio-border-soft: #55321f;
+
+  /* Outras cores */
+  --color-kurio-elevated: #fbfbfb;
+  --color-kurio-gray-light: #ededed;
+}
+
+
+/* ==================================================
+   4. INTEGRAÇÃO TAILWIND + SHADCN/UI
+   Mapeamento das variáveis semânticas
+   ================================================== */
+
+@theme inline {
+  /* Tipografia */
+  --font-heading: var(--font-sans);
+  --font-sans: "Roboto Mono Variable", monospace;
+
+  /* Sidebar */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  /* Gráficos */
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  /* Componentes e estados */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+
+  --color-destructive: var(--destructive);
+
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* Arredondamentos */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+
+/* ==================================================
+   5. TEMA PRINCIPAL KURIO
+   Variáveis utilizadas pelo shadcn/ui
+
+   A KURIO utiliza tema escuro como padrão.
+   ================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* Background */
+  --background: #140d0a;
+  --foreground: #f5f1eb;
+
+  /* Cards */
+  --card: #241612;
+  --card-foreground: #f5f1eb;
+
+  /* Popovers e menus */
+  --popover: #241612;
+  --popover-foreground: #f5f1eb;
+
+  /* Botões principais */
+  --primary: #d28a4c;
+  --primary-foreground: #140d0a;
+
+  /* Botões secundários */
+  --secondary: #38220f;
+  --secondary-foreground: #f5f1eb;
+
+  /* Superfícies e textos discretos */
+  --muted: #241612;
+  --muted-foreground: #cfb28c;
+
+  /* Estados de destaque */
+  --accent: #38220f;
+  --accent-foreground: #f5f1eb;
+
+  /* Estados destrutivos */
+  --destructive: oklch(0.577 0.245 27.325);
+
+  /* Bordas e estados de foco */
+  --border: #3f2319;
+  --input: #55321f;
+  --ring: #d28a4c;
+
+  /* Gráficos — valores provisórios */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+
+  /* Arredondamento padrão */
+  --radius: 0.625rem;
+
+  /* Sidebar */
+  --sidebar: #241612;
+  --sidebar-foreground: #f5f1eb;
+
+  --sidebar-primary: #d28a4c;
+  --sidebar-primary-foreground: #140d0a;
+
+  --sidebar-accent: #38220f;
+  --sidebar-accent-foreground: #f5f1eb;
+
+  --sidebar-border: #3f2319;
+  --sidebar-ring: #d28a4c;
+}
+
+
+/* ==================================================
+   6. ESTILOS GLOBAIS
+   ================================================== */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
 }

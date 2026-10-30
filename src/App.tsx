@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 
 function App() {
   return (
@@ -15,15 +16,16 @@ function App() {
           Desafio Front-End da Jungle Gaming
         </p>
 
-        <button
-          type="button"
-          className="rounded-lg bg-kurio-primary px-6 py-3 font-bold text-kurio-bg transition-opacity hover:opacity-80"
-        >
-          Explorar NFTs
-        </button>
+
+        <Button
+          type="button" className="bg-kurio-primary text-kurio-bg hover:bg-kurio-primary/90">
+            Explorar NFTs
+        </Button>
+
       </div>
     </main>
   );
 }
 
 export default App;
+

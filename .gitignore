@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backups locais do CSS
+/index.backup.css
+/index.kurio.original.css
+/src/backup-index.css
