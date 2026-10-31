@@ -4,6 +4,8 @@ import { MobileSearchBar } from "@/components/home/MobileSearchBar";
 import { MobileHeroBanner } from "@/components/home/MobileHeroBanner";
 import { Button } from "@/components/ui/button";
 import { MobileNftTabs } from "@/components/home/MobileNftTabs";
+import { MobileNftGrid } from "@/components/home/MobileNftGrid";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
 function App() {
   return (
@@ -15,15 +17,21 @@ function App() {
       </div>
 
       {/* Página inicial mobile */}
-      <div className="px-6 pt-10 lg:hidden">
+      <div className="px-6 pt-10 pb-[150px] lg:hidden">
         <div className="mx-auto flex w-full max-w-[366px] flex-col gap-4">
 
+          
           
           <MobileSearchBar />
 
           <MobileHeroBanner />
 
           <MobileNftTabs />
+
+          <MobileNftGrid />
+
+          <MobileBottomNav />
+
 
 
         </div>
