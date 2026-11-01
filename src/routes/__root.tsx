@@ -1,9 +1,11 @@
-
-import {
-  createRootRoute,
-  Outlet,
-} from "@tanstack/react-router";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { RealtimeBridge } from "@/components/realtime/RealtimeBridge";
 
 export const Route = createRootRoute({
-  component: () => <Outlet />,
+  component: () => (
+    <>
+      <RealtimeBridge />
+      <Outlet />
+    </>
+  ),
 });
