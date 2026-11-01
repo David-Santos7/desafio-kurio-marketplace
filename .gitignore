@@ -27,3 +27,6 @@ dist-ssr
 /index.backup.css
 /index.kurio.original.css
 /src/backup-index.css
+# Playwright reports
+/playwright-report/
+/test-results/
