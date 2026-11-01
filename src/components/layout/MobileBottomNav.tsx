@@ -1,8 +1,9 @@
 
 import { Link, useSearch } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 
-// Elementos visuais originais do Figma
+import { useCart } from "@/context/CartContext";
+
 import background from "@/assets/mobile/navigation/background.svg";
 import circle from "@/assets/mobile/navigation/circle.svg";
 
@@ -18,12 +19,17 @@ import scan4 from "@/assets/mobile/navigation/scan-4.svg";
 import scan5 from "@/assets/mobile/navigation/scan-5.svg";
 
 export function MobileBottomNav() {
-  // Identifica a visualização atual pela URL.
   const { tab } = useSearch({
     from: "/",
   });
 
+  const { cartCount } = useCart();
+
   const isFavoritesView = tab === "favorites";
+  const isCartView = tab === "cart";
+
+  const isHomeView =
+    !isFavoritesView && !isCartView;
 
   return (
     <nav
@@ -50,84 +56,51 @@ export function MobileBottomNav() {
           className="pointer-events-none absolute left-1/2 top-0 h-[65px] w-[65px] -translate-x-1/2"
         />
 
-        {/* Ícone central composto pelos SVGs */}
+        {/* Elementos do scanner */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
         >
-          <img
-            src={scan1}
-            alt=""
-            className="absolute inset-[25.48%_46.66%_73.1%_46.86%] h-auto w-auto"
-          />
-
-          <img
-            src={scan2}
-            alt=""
-            className="absolute inset-[27.53%_50.32%_64.29%_47.18%] h-auto w-auto"
-          />
-
-          <img
-            src={scan3}
-            alt=""
-            className="absolute inset-[16.73%_46.98%_75.09%_50.51%] h-auto w-auto"
-          />
-
-          <img
-            src={scan4}
-            alt=""
-            className="absolute inset-[27.54%_47%_64.33%_50.51%] h-auto w-auto"
-          />
-
-          <img
-            src={scan5}
-            alt=""
-            className="absolute inset-[16.67%_50.31%_75.15%_47.18%] h-auto w-auto"
-          />
+          <img src={scan1} alt="" className="absolute inset-[25.48%_46.66%_73.1%_46.86%] h-auto w-auto" />
+          <img src={scan2} alt="" className="absolute inset-[27.53%_50.32%_64.29%_47.18%] h-auto w-auto" />
+          <img src={scan3} alt="" className="absolute inset-[16.73%_46.98%_75.09%_50.51%] h-auto w-auto" />
+          <img src={scan4} alt="" className="absolute inset-[27.54%_47%_64.33%_50.51%] h-auto w-auto" />
+          <img src={scan5} alt="" className="absolute inset-[16.67%_50.31%_75.15%_47.18%] h-auto w-auto" />
         </div>
 
-        {/* Início: retorna ao catálogo completo */}
+        {/* Início */}
         <Link
           to="/"
-          search={{
-            tab: "all",
-            q: undefined,
-          }}
+          search={{ tab: "all", q: undefined }}
           aria-label="Início"
           aria-current={
-            isFavoritesView ? undefined : "page"
+            isHomeView ? "page" : undefined
           }
           className="absolute left-[6%] top-[60px] flex h-11 w-11 items-center justify-center"
         >
           <img
             src={homeIcon}
             alt=""
-            className={`h-5 w-5 transition-opacity ${
-              isFavoritesView
-                ? "opacity-60"
-                : "opacity-100"
+            className={`h-5 w-5 ${
+              isHomeView ? "opacity-100" : "opacity-60"
             }`}
           />
         </Link>
 
-        {/* Favoritos: abre os NFTs favoritados */}
+        {/* Favoritos */}
         <Link
           to="/"
-          search={{
-            tab: "favorites",
-            q: undefined,
-          }}
+          search={{ tab: "favorites", q: undefined }}
           aria-label="Meus favoritos"
           aria-current={
             isFavoritesView ? "page" : undefined
           }
-          className="absolute left-[24%] top-[60px] flex h-11 w-11 items-center justify-center transition-transform active:scale-95 focus-visible:rounded-full focus-visible:outline-2 focus-visible:outline-kurio-accent"
+          className="absolute left-[24%] top-[60px] flex h-11 w-11 items-center justify-center"
         >
           {isFavoritesView ? (
             <Heart
               aria-hidden="true"
               className="h-5 w-5 fill-current text-kurio-accent"
-              strokeWidth={2.2}
             />
           ) : (
             <img
@@ -138,7 +111,7 @@ export function MobileBottomNav() {
           )}
         </Link>
 
-        {/* Ação central — implementação futura */}
+        {/* Ação central */}
         <button
           type="button"
           disabled
@@ -146,19 +119,40 @@ export function MobileBottomNav() {
           className="absolute left-1/2 top-0 h-[65px] w-[65px] -translate-x-1/2 disabled:opacity-100"
         />
 
-        {/* Carrinho — implementação futura */}
-        <button
-          type="button"
-          disabled
-          aria-label="Carrinho em implementação"
-          className="absolute left-[68%] top-[60px] flex h-11 w-11 items-center justify-center disabled:opacity-100"
+        {/* Carrinho funcional */}
+        <Link
+          to="/"
+          search={{ tab: "cart", q: undefined }}
+          aria-label={`Meu carrinho: ${cartCount} itens`}
+          aria-current={
+            isCartView ? "page" : undefined
+          }
+          className="absolute left-[68%] top-[60px] flex h-11 w-11 items-center justify-center"
         >
-          <img
-            src={cartIcon}
-            alt=""
-            className="h-5 w-5"
-          />
-        </button>
+          {isCartView ? (
+            <ShoppingCart
+              aria-hidden="true"
+              className="h-5 w-5 text-kurio-accent"
+              strokeWidth={2.5}
+            />
+          ) : (
+            <img
+              src={cartIcon}
+              alt=""
+              className="h-5 w-5"
+            />
+          )}
+
+          {/* Quantidade de produtos */}
+          {cartCount > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-kurio-primary px-1 text-[9px] font-bold text-kurio-bg"
+            >
+              {cartCount}
+            </span>
+          )}
+        </Link>
 
         {/* Perfil — implementação futura */}
         <button
@@ -173,6 +167,7 @@ export function MobileBottomNav() {
             className="h-5 w-5"
           />
         </button>
+
       </div>
     </nav>
   );

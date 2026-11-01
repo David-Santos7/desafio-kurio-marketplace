@@ -2,70 +2,78 @@
 import { useEffect, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 
+import { useCart } from "@/context/CartContext";
 import { nfts } from "@/data/nfts";
 import { MobileNftCard } from "./MobileNftCard";
 
-// Chave utilizada no armazenamento local.
+// Armazenamento dos favoritos
 const FAVORITES_STORAGE_KEY = "kurio:favorites";
 
-// IDs válidos do catálogo.
-const validNftIds = new Set(nfts.map((nft) => nft.id));
+const validNftIds = new Set(
+  nfts.map((nft) => nft.id)
+);
 
-// Favoritos iniciais definidos no catálogo.
 const defaultFavoriteIds = nfts
   .filter((nft) => nft.showFavorite === true)
   .map((nft) => nft.id);
 
-// Recupera os favoritos do navegador.
 function getInitialFavorites(): string[] {
   if (typeof window === "undefined") {
     return defaultFavoriteIds;
   }
 
   try {
-    const storedFavorites = window.localStorage.getItem(
+    const stored = window.localStorage.getItem(
       FAVORITES_STORAGE_KEY
     );
 
-    if (storedFavorites === null) {
+    if (stored === null) {
       return defaultFavoriteIds;
     }
 
-    const parsedFavorites: unknown = JSON.parse(
-      storedFavorites
-    );
+    const parsed: unknown = JSON.parse(stored);
 
-    if (!Array.isArray(parsedFavorites)) {
+    if (!Array.isArray(parsed)) {
       return defaultFavoriteIds;
     }
 
-    // Remove IDs inválidos e duplicações.
-    const validFavorites = parsedFavorites.filter(
+    const favorites = parsed.filter(
       (id): id is string =>
-        typeof id === "string" && validNftIds.has(id)
+        typeof id === "string" &&
+        validNftIds.has(id)
     );
 
-    return [...new Set(validFavorites)];
+    return [...new Set(favorites)];
   } catch {
     return defaultFavoriteIds;
   }
 }
 
 export function MobileNftGrid() {
-  // Lê a categoria, os favoritos e a busca da URL.
   const { tab, q } = useSearch({
     from: "/",
   });
 
-  // Indica se estamos visualizando os favoritos.
-  const isFavoritesView = tab === "favorites";
+  // Estado e funções do carrinho compartilhado
+  const {
+    addToCart,
+    removeFromCart,
+    isInCart,
+    cartCount,
+    totalEth,
+  } = useCart();
 
-  // Estado dos favoritos.
+  // Estado dos favoritos
   const [favoriteIds, setFavoriteIds] = useState<string[]>(
     getInitialFavorites
   );
 
-  // Salva os favoritos no navegador.
+  const isFavoritesView = tab === "favorites";
+  const isCartView = tab === "cart";
+
+  const favoriteSet = new Set(favoriteIds);
+
+  // Salva os favoritos
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -73,48 +81,55 @@ export function MobileNftGrid() {
         JSON.stringify(favoriteIds)
       );
     } catch {
-      // Os favoritos continuam funcionando em memória.
+      // Mantém o estado em memória.
     }
   }, [favoriteIds]);
 
-  // Adiciona ou remove um NFT dos favoritos.
+  // Alterna o favorito
   function toggleFavorite(nftId: string): void {
     if (!validNftIds.has(nftId)) {
       return;
     }
 
-    setFavoriteIds((currentFavorites) => {
-      if (currentFavorites.includes(nftId)) {
-        return currentFavorites.filter(
-          (id) => id !== nftId
-        );
-      }
-
-      return [...currentFavorites, nftId];
-    });
+    setFavoriteIds((current) =>
+      current.includes(nftId)
+        ? current.filter((id) => id !== nftId)
+        : [...current, nftId]
+    );
   }
 
-  // Normaliza o texto pesquisado.
+  // Alterna o estado do carrinho
+  function toggleCart(nftId: string): void {
+    if (!validNftIds.has(nftId)) {
+      return;
+    }
+
+    if (isInCart(nftId)) {
+      removeFromCart(nftId);
+    } else {
+      addToCart(nftId);
+    }
+  }
+
+  // Normaliza a pesquisa
   const searchTerm = (q ?? "")
     .trim()
     .toLocaleLowerCase("pt-BR");
 
-  // Filtra os NFTs conforme a visualização selecionada.
+  // Seleciona os NFTs da visualização atual
   const filteredNfts = nfts.filter((nft) => {
     let matchesCategory: boolean;
 
-    if (isFavoritesView) {
-      // Exibe somente os NFTs favoritados.
-      matchesCategory = favoriteIds.includes(nft.id);
+    if (tab === "cart") {
+      matchesCategory = isInCart(nft.id);
+    } else if (tab === "favorites") {
+      matchesCategory = favoriteSet.has(nft.id);
     } else if (tab === "all") {
-      // Exibe todos os NFTs.
       matchesCategory = true;
     } else {
-      // Filtra por Novos lançamentos ou Em alta.
       matchesCategory = nft.tags.includes(tab);
     }
 
-    // A pesquisa funciona também nos favoritos.
     const matchesSearch = nft.name
       .toLocaleLowerCase("pt-BR")
       .includes(searchTerm);
@@ -122,22 +137,71 @@ export function MobileNftGrid() {
     return matchesCategory && matchesSearch;
   });
 
+  // Mensagens para listas vazias
+  let emptyTitle = "Nenhum NFT encontrado";
+  let emptyDescription =
+    "Tente pesquisar outro nome ou selecionar uma categoria diferente.";
+
+  if (isCartView) {
+    emptyTitle =
+      cartCount === 0
+        ? "Seu carrinho está vazio"
+        : "Nenhum NFT encontrado no carrinho";
+
+    emptyDescription =
+      cartCount === 0
+        ? "Volte ao catálogo e adicione NFTs ao carrinho."
+        : "Tente pesquisar outro nome.";
+  } else if (isFavoritesView) {
+    emptyTitle =
+      favoriteIds.length === 0
+        ? "Você ainda não tem favoritos"
+        : "Nenhum favorito encontrado";
+
+    emptyDescription =
+      favoriteIds.length === 0
+        ? "Toque no coração de um NFT para adicioná-lo aos favoritos."
+        : "Tente pesquisar outro nome.";
+  }
+
   return (
     <section
       aria-label={
-        isFavoritesView
-          ? "Meus NFTs favoritos"
-          : "Catálogo de NFTs"
+        isCartView
+          ? "Meu carrinho"
+          : isFavoritesView
+            ? "Meus NFTs favoritos"
+            : "Catálogo de NFTs"
       }
       className="grid w-full grid-cols-2 items-start gap-x-4 gap-y-6"
     >
-      {/* Título exibido somente nos favoritos */}
+      {/* Resumo do carrinho */}
+      {isCartView && (
+        <div className="col-span-2 flex flex-col gap-2">
+          <h2 className="text-[16px] font-bold text-kurio-accent">
+            Meu carrinho
+          </h2>
+
+          <div className="rounded-[10px] bg-kurio-card p-3">
+            <p className="text-[12px] text-kurio-secondary">
+              {cartCount} NFT(s) no carrinho
+            </p>
+
+            <p className="mt-1 text-[15px] font-bold text-kurio-accent">
+              Total: {totalEth.toFixed(2)} ETH
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Título dos favoritos */}
       {isFavoritesView && (
         <h2 className="col-span-2 text-[16px] font-bold text-kurio-accent">
           Meus favoritos
         </h2>
       )}
 
+      {/* Cards */}
       {filteredNfts.length > 0 ? (
         filteredNfts.map((nft) => (
           <MobileNftCard
@@ -146,10 +210,14 @@ export function MobileNftGrid() {
             name={nft.name}
             priceEth={nft.priceEth}
             isRare={nft.isRare}
-            isFavorite={favoriteIds.includes(nft.id)}
-            onToggleFavorite={() => {
-              toggleFavorite(nft.id);
-            }}
+            isFavorite={favoriteSet.has(nft.id)}
+            onToggleFavorite={() =>
+              toggleFavorite(nft.id)
+            }
+            isInCart={isInCart(nft.id)}
+            onToggleCart={() =>
+              toggleCart(nft.id)
+            }
           />
         ))
       ) : (
@@ -158,19 +226,11 @@ export function MobileNftGrid() {
           className="col-span-2 rounded-[10px] bg-kurio-card px-4 py-8 text-center"
         >
           <p className="text-[14px] font-bold text-kurio-text">
-            {isFavoritesView
-              ? favoriteIds.length === 0
-                ? "Você ainda não tem favoritos"
-                : "Nenhum favorito encontrado"
-              : "Nenhum NFT encontrado"}
+            {emptyTitle}
           </p>
 
           <p className="mt-2 text-[12px] text-kurio-secondary">
-            {isFavoritesView
-              ? favoriteIds.length === 0
-                ? "Toque no coração de um NFT para adicioná-lo aos favoritos."
-                : "Tente pesquisar outro nome."
-              : "Tente pesquisar outro nome ou selecionar uma categoria diferente."}
+            {emptyDescription}
           </p>
         </div>
       )}

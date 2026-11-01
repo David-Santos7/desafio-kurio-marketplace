@@ -2,14 +2,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import App from "@/App";
 
-// Categorias e visualização de favoritos
 type NftCategory =
   | "all"
   | "new"
   | "trending"
-  | "favorites";
+  | "favorites"
+  | "cart";
 
-// Parâmetros aceitos na URL
 type NftSearch = {
   tab: NftCategory;
   q?: string;
@@ -22,7 +21,8 @@ export const Route = createFileRoute("/")({
     tab:
       search.tab === "new" ||
       search.tab === "trending" ||
-      search.tab === "favorites"
+      search.tab === "favorites" ||
+      search.tab === "cart"
         ? search.tab
         : "all",
 

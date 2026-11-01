@@ -7,7 +7,13 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 
+// Contexto responsável pelo carrinho de NFTs
+import { CartProvider } from "@/context/CartProvider";
+
+// Rotas geradas automaticamente pelo TanStack Router
 import { routeTree } from "./routeTree.gen";
+
+// Estilos globais da aplicação
 import "./index.css";
 
 // Cria o roteador com as rotas da aplicação
@@ -15,7 +21,7 @@ const router = createRouter({
   routeTree,
 });
 
-// Registra os tipos para o TypeScript
+// Registra os tipos do roteador para o TypeScript
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -25,6 +31,8 @@ declare module "@tanstack/react-router" {
 // Inicializa a aplicação React
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <CartProvider>
+      <RouterProvider router={router} />
+    </CartProvider>
   </StrictMode>,
 );
