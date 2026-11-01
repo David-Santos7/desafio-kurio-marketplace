@@ -1,8 +1,17 @@
 
 import { Link, useSearch } from "@tanstack/react-router";
-import { Heart, ShoppingCart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Heart,
+  ShoppingCart,
+} from "lucide-react";
 
 import { useCart } from "@/context/CartContext";
+
+import {
+  authService,
+  getAccessToken,
+} from "@/services/authService";
 
 import background from "@/assets/mobile/navigation/background.svg";
 import circle from "@/assets/mobile/navigation/circle.svg";
@@ -24,6 +33,20 @@ export function MobileBottomNav() {
   });
 
   const { cartCount } = useCart();
+
+  const token = getAccessToken();
+
+  const { data: session } = useQuery({
+    queryKey: ["auth", "session"],
+    queryFn: authService.getSession,
+    enabled: Boolean(token),
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  const isAuthenticated = Boolean(
+    token && session?.user
+  );
 
   const isFavoritesView = tab === "favorites";
   const isCartView = tab === "cart";
@@ -56,16 +79,40 @@ export function MobileBottomNav() {
           className="pointer-events-none absolute left-1/2 top-0 h-[65px] w-[65px] -translate-x-1/2"
         />
 
-        {/* Elementos do scanner */}
+        {/* Elementos visuais do scanner */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
         >
-          <img src={scan1} alt="" className="absolute inset-[25.48%_46.66%_73.1%_46.86%] h-auto w-auto" />
-          <img src={scan2} alt="" className="absolute inset-[27.53%_50.32%_64.29%_47.18%] h-auto w-auto" />
-          <img src={scan3} alt="" className="absolute inset-[16.73%_46.98%_75.09%_50.51%] h-auto w-auto" />
-          <img src={scan4} alt="" className="absolute inset-[27.54%_47%_64.33%_50.51%] h-auto w-auto" />
-          <img src={scan5} alt="" className="absolute inset-[16.67%_50.31%_75.15%_47.18%] h-auto w-auto" />
+          <img
+            src={scan1}
+            alt=""
+            className="absolute inset-[25.48%_46.66%_73.1%_46.86%] h-auto w-auto"
+          />
+
+          <img
+            src={scan2}
+            alt=""
+            className="absolute inset-[27.53%_50.32%_64.29%_47.18%] h-auto w-auto"
+          />
+
+          <img
+            src={scan3}
+            alt=""
+            className="absolute inset-[16.73%_46.98%_75.09%_50.51%] h-auto w-auto"
+          />
+
+          <img
+            src={scan4}
+            alt=""
+            className="absolute inset-[27.54%_47%_64.33%_50.51%] h-auto w-auto"
+          />
+
+          <img
+            src={scan5}
+            alt=""
+            className="absolute inset-[16.67%_50.31%_75.15%_47.18%] h-auto w-auto"
+          />
         </div>
 
         {/* Início */}
@@ -111,15 +158,13 @@ export function MobileBottomNav() {
           )}
         </Link>
 
-        {/* Ação central */}
-        <button
-          type="button"
-          disabled
-          aria-label="Ação central em implementação"
-          className="absolute left-1/2 top-0 h-[65px] w-[65px] -translate-x-1/2 disabled:opacity-100"
+        {/* Scanner decorativo */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-0 h-[65px] w-[65px] -translate-x-1/2"
         />
 
-        {/* Carrinho funcional */}
+        {/* Carrinho */}
         <Link
           to="/"
           search={{ tab: "cart", q: undefined }}
@@ -143,30 +188,32 @@ export function MobileBottomNav() {
             />
           )}
 
-          {/* Quantidade de produtos */}
           {cartCount > 0 && (
             <span
               aria-hidden="true"
               className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-kurio-primary px-1 text-[9px] font-bold text-kurio-bg"
             >
-              {cartCount}
+              {cartCount > 99 ? "99+" : cartCount}
             </span>
           )}
         </Link>
 
-        {/* Perfil — implementação futura */}
-        <button
-          type="button"
-          disabled
-          aria-label="Perfil em implementação"
-          className="absolute left-[83%] top-[60px] flex h-11 w-11 items-center justify-center disabled:opacity-100"
+        {/* Login / Perfil — agora funcional */}
+        <Link
+          to={isAuthenticated ? "/profile" : "/login"}
+          aria-label={
+            isAuthenticated
+              ? "Abrir meu perfil"
+              : "Entrar na minha conta"
+          }
+          className="absolute left-[83%] top-[60px] flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-kurio-accent"
         >
           <img
             src={userIcon}
             alt=""
             className="h-5 w-5"
           />
-        </button>
+        </Link>
 
       </div>
     </nav>
