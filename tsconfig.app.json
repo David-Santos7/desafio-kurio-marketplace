@@ -1,7 +1,8 @@
 
 {
   "compilerOptions": {
-    "baseUrl": ".", // Versão utilzada no projeto é 5.9, por isso é baseURL é necessário.
+    "strictNullChecks": true,
+    "baseUrl": ".", // Define a base para a resolução de caminhos.
     "paths": {
       "@/*": ["./src/*"]
     },
