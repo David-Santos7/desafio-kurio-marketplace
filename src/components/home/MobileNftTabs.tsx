@@ -1,37 +1,54 @@
 
-import { useState } from "react";
+import {
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 
 const categories = [
-  "Todos os NFTs",
-  "Novos lançamentos",
-  "Em alta",
+  { label: "Todos os NFTs", value: "all" },
+  { label: "Novos lançamentos", value: "new" },
+  { label: "Em alta", value: "trending" },
 ] as const;
 
-type Category = (typeof categories)[number];
-
 export function MobileNftTabs() {
-  const [activeCategory, setActiveCategory] =
-    useState<Category>("Todos os NFTs");
+  // Lê a categoria selecionada na URL.
+  const { tab: activeCategory } = useSearch({
+    from: "/",
+  });
+
+  // Permite atualizar a URL.
+  const navigate = useNavigate({
+    from: "/",
+  });
 
   return (
     <nav aria-label="Categorias de NFTs" className="w-full">
       <div className="flex items-start gap-4 overflow-x-auto">
         {categories.map((category) => {
-          const isActive = activeCategory === category;
+          const isActive = activeCategory === category.value;
 
           return (
             <button
-              key={category}
+              key={category.value}
               type="button"
               aria-pressed={isActive}
-              onClick={() => setActiveCategory(category)}
+              onClick={() => {
+                void navigate({
+                  to: "/",
+                  search: (prev) => ({
+                    ...prev,
+                    tab: category.value,
+                  }),
+                  resetScroll: false,
+                });
+              }}
               className={`relative shrink-0 pb-[6px] text-[14px] leading-4 whitespace-nowrap transition-colors ${
                 isActive
                   ? "font-bold text-kurio-accent"
                   : "font-normal text-kurio-text"
               }`}
             >
-              {category}
+              {category.label}
 
               {isActive && (
                 <span
